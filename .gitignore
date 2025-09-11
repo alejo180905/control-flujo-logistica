@@ -1,0 +1,15 @@
+# Dependencias
+node_modules/
+
+# Config local
+.vscode/
+.env
+
+# Archivos pesados / SDKs
+Oracle_JDK-24/
+
+# Archivos temporales
+*.log
+*.session.sql
+
+

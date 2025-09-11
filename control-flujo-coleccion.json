@@ -1,0 +1,79 @@
+{
+  "client": "thunder-client",
+  "collectionName": "Control Flujo Logístico",
+  "dateExported": "2025-09-05T00:00:00.000Z",
+  "version": "1.1",
+  "requests": [
+    {
+      "name": "1. Verificar API",
+      "method": "GET",
+      "url": "http://localhost:3000/",
+      "headers": [],
+      "body": {}
+    },
+    {
+      "name": "2. Registro de Usuario",
+      "method": "POST",
+      "url": "http://localhost:3000/api/auth/registro",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": {
+          "nombre": "Juan Pérez",
+          "usuario": "juanperez",
+          "contraseña": "123456",
+          "rol": "Bodega"
+        }
+      }
+    },
+    {
+      "name": "3. Login de Usuario",
+      "method": "POST",
+      "url": "http://localhost:3000/api/auth/login",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": {
+          "usuario": "juanperez",
+          "contraseña": "123456"
+        }
+      }
+    },
+    {
+      "name": "4. Crear Pedido",
+      "method": "POST",
+      "url": "http://localhost:3000/api/pedidos/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": {
+          "usuarioId": 1,
+          "producto": "Cajas",
+          "cantidad": 5,
+          "estado": "Bodega"
+        }
+      }
+    },
+    {
+      "name": "5. Ver Historial de Pedidos",
+      "method": "GET",
+      "url": "http://localhost:3000/api/pedidos/1/historial",
+      "headers": []
+    }
+  ]
+}
