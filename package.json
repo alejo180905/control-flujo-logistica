@@ -1,7 +1,7 @@
 {
   "name": "logistica",
   "version": "1.0.0",
-  "description": "",
+  "description": "Esta API permite gestionar usuarios, autenticación y pedidos para un sistema logístico.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -22,5 +22,13 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alejo180905/control-flujo-logistica.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alejo180905/control-flujo-logistica/issues"
+  },
+  "homepage": "https://github.com/alejo180905/control-flujo-logistica#readme"
 }
