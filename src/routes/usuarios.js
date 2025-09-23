@@ -8,16 +8,7 @@ router.post('/registro', usuariosController.registrarUsuario);
 router.post('/login', usuariosController.login);
 
 // Esta ruta ahora requiere ser Admin
-router.get('/', soloAdmin, usuariosController.obtenerUsuarios);
-
-// Ruta para obtener un usuario específico
-router.get('/:id', soloAdmin, usuariosController.obtenerUsuarioPorId);
-
-// Ruta para cambiar el estado de un usuario
-router.put('/:id/toggle-status', soloAdmin, usuariosController.toggleEstadoUsuario);
-
-// Ruta para eliminar un usuario
-router.delete('/:id', soloAdmin, usuariosController.eliminarUsuario);
+router.get('/', soloAdmin, usuariosController.obtenerUsuarios); // 👈 AGREGAR soloAdmin
 
 module.exports = router;
 

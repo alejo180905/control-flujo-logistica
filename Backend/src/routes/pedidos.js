@@ -1,27 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const pedidosController = require("../controllers/pedidosController");
-const { soloAdmin, soloBodega, soloDespachos, soloMensajero, soloMaquilas, rolesOperativos } = require("../middleware/auth"); // 👈 AGREGAR ESTA LÍNEA
+const { verificarToken, verificarRol, soloBodega, soloDespachos, soloMensajero, soloMaquilas, soloAdmin } = require("../middleware/auth");
 
-// Solo Admin puede crear pedidos
-router.post("/", soloAdmin, pedidosController.crearPedido); // 👈 AGREGAR soloAdmin
+// Rutas básicas de pedidos (protegidas con token)
+router.post("/", soloAdmin, pedidosController.crearPedido);
+router.get("/", verificarToken, pedidosController.listarPedidos);
+router.get("/:id/historial", verificarToken, pedidosController.verHistorialPedido);
 
-// Todos los roles operativos pueden ver historial
-router.get("/historial", rolesOperativos, pedidosController.verHistorial); // 👈 AGREGAR rolesOperativos
-
-// Solo Bodega puede hacer estas operaciones
-router.put("/:id/bodega/recibir", soloBodega, pedidosController.recibirBodega); // 👈 AGREGAR soloBodega
-router.put("/:id/bodega/entregar", soloBodega, pedidosController.entregarBodega); // 👈 AGREGAR soloBodega
-
-// Solo Despachos puede hacer estas operaciones
-router.put("/:id/despacho/recibir", soloDespachos, pedidosController.recibirDespacho); // 👈 AGREGAR soloDespachos
-router.put("/:id/despacho/entregar", soloDespachos, pedidosController.entregarDespacho); // 👈 AGREGAR soloDespachos
-
-// Solo Mensajero puede hacer estas operaciones
-router.put("/:id/mensajero/recibir", soloMensajero, pedidosController.recibirMensajero); // 👈 AGREGAR soloMensajero
-router.put("/:id/mensajero/entregar", soloMensajero, pedidosController.entregarMensajero); // 👈 AGREGAR soloMensajero
-
-// Solo Maquilas puede hacer esta operación
-router.put("/:id/maquila/recibir", soloMaquilas, pedidosController.recibirMaquila); // 👈 AGREGAR soloMaquilas
+// Rutas para cambios de estado
+router.put("/:id/bodega/entregar", soloBodega, pedidosController.entregarBodega);
+router.put("/:id/despacho/entregar", soloDespachos, pedidosController.entregarDespacho);
+router.put("/:id/mensajero/entregar", soloMensajero, pedidosController.entregarMensajero);
+router.put("/:id/maquila/recibir", soloMaquilas, pedidosController.recibirMaquila);
 
 module.exports = router;

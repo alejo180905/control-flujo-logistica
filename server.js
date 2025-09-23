@@ -27,7 +27,7 @@ const swaggerDefinition = {
 
 const options = {
 	swaggerDefinition,
-	apis: [__dirname + '/src/routes/*.js'], // Documenta rutas en estos archivos
+	apis: [__dirname + '/Backend/src/routes/*.js'], // Documenta rutas en estos archivos
 };
 
 const swaggerSpec = swaggerJSDoc(options);
@@ -43,16 +43,14 @@ app.get('/', (req, res) => {
 });
 
 // Importar rutas
-const authRoutes = require('./src/routes/auth');
-const usuariosRoutes = require('./src/routes/usuarios');
-const pedidosRoutes = require('./src/routes/pedidos');
-const dashboardRoutes = require('./src/routes/dashboardRoutes');
+const authRoutes = require('./Backend/src/routes/auth');
+const usuariosRoutes = require('./Backend/src/routes/usuarios');
+const pedidosRoutes = require('./Backend/src/routes/pedidos');
 
 // Usar rutas con prefijo
 app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/pedidos', pedidosRoutes);
-app.use('/api/dashboard', dashboardRoutes);
 
 // Iniciar servidor
 app.listen(PORT, () => {

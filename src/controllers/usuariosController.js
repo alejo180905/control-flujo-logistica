@@ -5,96 +5,6 @@ const jwt = require('jsonwebtoken');
 const util = require('util');
 const db = require('../config/database');
 
-// Obtener usuario por ID
-exports.obtenerUsuarioPorId = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const [rows] = await db.query('SELECT id_usuario, nombre, usuario, rol, activo FROM USUARIOS WHERE id_usuario = ?', [id]);
-    
-    if (rows.length === 0) {
-      return res.status(404).json({
-        mensaje: 'Usuario no encontrado'
-      });
-    }
-
-    return res.json(rows[0]);
-  } catch (error) {
-    console.error('❌ ERROR OBTENER USUARIO:', util.inspect(error, { depth: null }));
-    return res.status(500).json({
-      mensaje: 'Error al obtener el usuario',
-      error: error?.sqlMessage || error?.message || 'Revisa logs del servidor'
-    });
-  }
-};
-
-// Cambiar estado del usuario (activar/desactivar)
-exports.toggleEstadoUsuario = async (req, res) => {
-  const { id } = req.params;
-  try {
-    // Primero obtenemos el estado actual
-    const [rows] = await db.query('SELECT activo FROM USUARIOS WHERE id_usuario = ?', [id]);
-    
-    if (rows.length === 0) {
-      return res.status(404).json({
-        mensaje: 'Usuario no encontrado'
-      });
-    }
-
-    const nuevoEstado = rows[0].activo ? 0 : 1;
-    
-    await db.query('UPDATE USUARIOS SET activo = ? WHERE id_usuario = ?', [nuevoEstado, id]);
-
-    return res.json({
-      mensaje: `Usuario ${nuevoEstado ? 'activado' : 'desactivado'} correctamente`,
-      activo: Boolean(nuevoEstado)
-    });
-  } catch (error) {
-    console.error('❌ ERROR TOGGLE ESTADO:', util.inspect(error, { depth: null }));
-    return res.status(500).json({
-      mensaje: 'Error al cambiar el estado del usuario',
-      error: error?.sqlMessage || error?.message || 'Revisa logs del servidor'
-    });
-  }
-};
-
-// Eliminar usuario
-exports.eliminarUsuario = async (req, res) => {
-  const { id } = req.params;
-  try {
-    // Verificar que el usuario existe
-    const [rows] = await db.query('SELECT id_usuario, rol FROM USUARIOS WHERE id_usuario = ?', [id]);
-    
-    if (rows.length === 0) {
-      return res.status(404).json({
-        mensaje: 'Usuario no encontrado'
-      });
-    }
-
-    // No permitir eliminar al último admin
-    if (rows[0].rol.toLowerCase() === 'admin') {
-      const [admins] = await db.query('SELECT COUNT(*) as count FROM USUARIOS WHERE rol = "Admin"');
-      if (admins[0].count <= 1) {
-        return res.status(400).json({
-          mensaje: 'No se puede eliminar al último administrador del sistema'
-        });
-      }
-    }
-
-    // Eliminar el usuario
-    await db.query('DELETE FROM USUARIOS WHERE id_usuario = ?', [id]);
-
-    return res.json({
-      mensaje: 'Usuario eliminado correctamente'
-    });
-  } catch (error) {
-    console.error('❌ ERROR ELIMINAR USUARIO:', util.inspect(error, { depth: null }));
-    return res.status(500).json({
-      mensaje: 'Error al eliminar el usuario',
-      error: error?.sqlMessage || error?.message || 'Revisa logs del servidor'
-    });
-  }
-};
-
 // Obtener todos los usuarios
 exports.obtenerUsuarios = async (req, res) => {
   try {
@@ -121,13 +31,13 @@ exports.registrarUsuario = async (req, res) => {
 
   try {
     // 🚫 BLOQUEAR CREACIÓN DE ADMIN
-    if (rol === "Admin" || rol === "admin" || rol === "ADMIN") {
-      console.warn('🚨 Intento de crear usuario Admin bloqueado:', { usuario, rol });
-      return res.status(403).json({
-        mensaje: "No tienes permisos para crear un usuario Admin",
-        detalle: "Solo los administradores del sistema pueden crear usuarios Admin"
-      });
-   }
+  //  if (rol === "Admin" || rol === "admin" || rol === "ADMIN") {
+   //   console.warn('🚨 Intento de crear usuario Admin bloqueado:', { usuario, rol });
+   //   return res.status(403).json({
+     //   mensaje: "No tienes permisos para crear un usuario Admin",
+    //    detalle: "Solo los administradores del sistema pueden crear usuarios Admin"
+    //  });
+   // }
 
     // Validaciones mínimas
     if (!nombre || !usuario || !rawPassword) {
