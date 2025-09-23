@@ -1,12 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const usuariosController = require('../controllers/usuariosController');
+const { soloAdmin } = require('../middleware/auth'); // 👈 AGREGAR ESTA LÍNEA
 
-
-// 👇 IMPORTANTE: sin paréntesis
+// Rutas públicas (sin cambios)
 router.post('/registro', usuariosController.registrarUsuario);
 router.post('/login', usuariosController.login);
-router.get('/', usuariosController.obtenerUsuarios);
+
+// Esta ruta ahora requiere ser Admin
+router.get('/', soloAdmin, usuariosController.obtenerUsuarios); // 👈 AGREGAR soloAdmin
 
 module.exports = router;
 

@@ -31,13 +31,13 @@ exports.registrarUsuario = async (req, res) => {
 
   try {
     // 🚫 BLOQUEAR CREACIÓN DE ADMIN
-    if (rol === "Admin" || rol === "admin" || rol === "ADMIN") {
-      console.warn('🚨 Intento de crear usuario Admin bloqueado:', { usuario, rol });
-      return res.status(403).json({
-        mensaje: "No tienes permisos para crear un usuario Admin",
-        detalle: "Solo los administradores del sistema pueden crear usuarios Admin"
-      });
-    }
+  //  if (rol === "Admin" || rol === "admin" || rol === "ADMIN") {
+   //   console.warn('🚨 Intento de crear usuario Admin bloqueado:', { usuario, rol });
+   //   return res.status(403).json({
+     //   mensaje: "No tienes permisos para crear un usuario Admin",
+    //    detalle: "Solo los administradores del sistema pueden crear usuarios Admin"
+    //  });
+   // }
 
     // Validaciones mínimas
     if (!nombre || !usuario || !rawPassword) {

@@ -32,7 +32,7 @@ exports.verHistorial = async (req, res) => {
 exports.recibirBodega = async (req, res) => {
   const { id } = req.params;
   try {
-    await db.query("UPDATE PEDIDOS SET estado = 'BODEGA_RECIBIDO' WHERE id_pedido = ?", [id]);
+    await db.query("INSERT INTO historial_pedidos (id_pedido, id_usuario, accion, etapa, fecha) VALUES (?, ?, ?, ?, NOW())", [id, req.usuario?.id, 'RECIBIDO', 'BODEGA']);
     res.json({ mensaje: "Pedido recibido en bodega" });
   } catch (error) {
     console.error('ERROR BODEGA RECIBIR:', error, error?.sqlMessage);
@@ -43,7 +43,7 @@ exports.recibirBodega = async (req, res) => {
 exports.entregarBodega = async (req, res) => {
   const { id } = req.params;
   try {
-    await db.query("UPDATE PEDIDOS SET estado = 'BODEGA_ENTREGADO' WHERE id_pedido = ?", [id]);
+    await db.query("INSERT INTO historial_pedidos (id_pedido, id_usuario, accion, etapa, fecha) VALUES (?, ?, ?, ?, NOW())", [id, req.usuario?.id, 'ENTREGADO', 'BODEGA']);
     res.json({ mensaje: "Pedido entregado por bodega" });
   } catch (error) {
     console.error('ERROR BODEGA ENTREGAR:', error, error?.sqlMessage);
@@ -57,7 +57,8 @@ exports.entregarBodega = async (req, res) => {
 exports.recibirDespacho = async (req, res) => {
   const { id } = req.params;
   try {
-    await db.query("UPDATE PEDIDOS SET estado = 'DESPACHO_RECIBIDO' WHERE id_pedido = ?", [id]);
+    console.log('Recibiendo en despacho:', { id_pedido: id, id_usuario: req.usuario?.id });
+    await db.query("INSERT INTO historial_pedidos (id_pedido, id_usuario, accion, etapa, fecha) VALUES (?, ?, ?, ?, NOW())", [id, req.usuario?.id, 'RECIBIDO', 'DESPACHOS']);
     res.json({ mensaje: "Pedido recibido en despacho" });
   } catch (error) {
     res.status(500).json({ mensaje: "Error al actualizar pedido en despacho", error });
@@ -67,7 +68,7 @@ exports.recibirDespacho = async (req, res) => {
 exports.entregarDespacho = async (req, res) => {
   const { id } = req.params;
   try {
-    await db.query("UPDATE PEDIDOS SET estado = 'DESPACHO_ENTREGADO' WHERE id_pedido = ?", [id]);
+    await db.query("INSERT INTO historial_pedidos (id_pedido, id_usuario, accion, etapa, fecha) VALUES (?, ?, ?, ?, NOW())", [id, req.usuario?.id, 'ENTREGADO', 'DESPACHOS']);
     res.json({ mensaje: "Pedido entregado en despacho" });
   } catch (error) {
     res.status(500).json({ mensaje: "Error al actualizar pedido en despacho", error });
@@ -80,7 +81,7 @@ exports.entregarDespacho = async (req, res) => {
 exports.recibirMensajero = async (req, res) => {
   const { id } = req.params;
   try {
-    await db.query("UPDATE PEDIDOS SET estado = 'MENSAJERO_RECIBIDO' WHERE id_pedido = ?", [id]);
+    await db.query("INSERT INTO historial_pedidos (id_pedido, id_usuario, accion, etapa, fecha) VALUES (?, ?, ?, ?, NOW())", [id, req.usuario?.id, 'RECIBIDO', 'MENSAJERO']);
     res.json({ mensaje: "Pedido recibido por mensajero" });
   } catch (error) {
     res.status(500).json({ mensaje: "Error al actualizar pedido en mensajero", error });
@@ -90,7 +91,7 @@ exports.recibirMensajero = async (req, res) => {
 exports.entregarMensajero = async (req, res) => {
   const { id } = req.params;
   try {
-    await db.query("UPDATE PEDIDOS SET estado = 'MENSAJERO_ENTREGADO' WHERE id_pedido = ?", [id]);
+    await db.query("INSERT INTO historial_pedidos (id_pedido, id_usuario, accion, etapa, fecha) VALUES (?, ?, ?, ?, NOW())", [id, req.usuario?.id, 'ENTREGADO', 'MENSAJERO']);
     res.json({ mensaje: "Pedido entregado por mensajero" });
   } catch (error) {
     res.status(500).json({ mensaje: "Error al actualizar pedido en mensajero", error });
@@ -103,8 +104,13 @@ exports.entregarMensajero = async (req, res) => {
 exports.recibirMaquila = async (req, res) => {
   const { id } = req.params;
   try {
-    await db.query("UPDATE PEDIDOS SET estado = 'MAQUILA_RECIBIDO' WHERE id_pedido = ?", [id]);
-    res.json({ mensaje: "Pedido recibido en maquila" });
+    // Insertar en historial
+    await db.query("INSERT INTO historial_pedidos (id_pedido, id_usuario, accion, etapa, fecha) VALUES (?, ?, ?, ?, NOW())", [id, req.usuario?.id, 'RECIBIDO', 'MAQUILAS']);
+    
+    // Marcar pedido como FINALIZADO
+    await db.query("UPDATE pedidos SET estado = 'FINALIZADO', completed_at = NOW() WHERE id_pedido = ?", [id]);
+    
+    res.json({ mensaje: "Pedido recibido en maquila y marcado como FINALIZADO" });
   } catch (error) {
     res.status(500).json({ mensaje: "Error al actualizar pedido en maquila", error });
   }
