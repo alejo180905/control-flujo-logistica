@@ -59,9 +59,23 @@ export default function Navigation() {
                   Usuarios
                 </Link>
               )}
+              {isAdmin && (
+                <Link
+                  href="/reset-password"
+                  className="border-transparent text-gray-500 hover:border-blue-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                >
+                  Reset Password
+                </Link>
+              )}
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
+            <Link
+              href="/perfil"
+              className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium mr-3"
+            >
+              Mi Perfil
+            </Link>
             <button
               onClick={handleLogout}
               className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"

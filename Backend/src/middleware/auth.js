@@ -30,8 +30,10 @@ exports.verificarToken = (req, res, next) => {
     // Agregar información del usuario a la request
     req.usuario = {
       id: decoded.id,
+      id_usuario: decoded.id_usuario || decoded.id, // Compatibilidad para historial
       usuario: decoded.usuario,
-      rol: decoded.rol
+      rol: decoded.rol,
+      nombre: decoded.nombre || decoded.usuario // Para el historial
     };
 
     console.log('✅ Token válido - Usuario:', req.usuario.usuario, 'Rol:', req.usuario.rol);

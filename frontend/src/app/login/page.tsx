@@ -19,7 +19,10 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(credentials)
+        body: JSON.stringify({
+          usuario: credentials.usuario,
+          contraseña: credentials.password
+        })
       })
 
       if (response.ok) {
@@ -31,10 +34,12 @@ export default function LoginPage() {
         console.log('Intentando redirigir a inicio...')
         router.push('/inicio')
       } else {
-        setError('Credenciales inválidas')
+        const errorData = await response.json()
+        setError(errorData.mensaje || 'Credenciales inválidas')
       }
     } catch (err) {
-      setError('Error al intentar iniciar sesión')
+      console.error('Error en login:', err)
+      setError('Error al conectar con el servidor')
     }
   }
 

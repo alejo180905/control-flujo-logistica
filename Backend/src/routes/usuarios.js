@@ -1,23 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const usuariosController = require('../controllers/usuariosController');
-const { soloAdmin } = require('../middleware/auth'); // 👈 AGREGAR ESTA LÍNEA
+const { soloAdmin, verificarToken } = require('../middleware/auth');
 
 // Rutas públicas (sin cambios)
 router.post('/registro', usuariosController.registrarUsuario);
 router.post('/login', usuariosController.login);
 
-// Esta ruta ahora requiere ser Admin
+// Rutas protegidas para todos los usuarios autenticados
+router.put('/perfil', verificarToken, usuariosController.editarPerfil);
+
+// Rutas solo para Admin
+router.post('/', soloAdmin, usuariosController.registrarUsuario); // Crear usuario como admin
 router.get('/', soloAdmin, usuariosController.obtenerUsuarios);
-
-// Ruta para obtener un usuario específico
 router.get('/:id', soloAdmin, usuariosController.obtenerUsuarioPorId);
-
-// Ruta para cambiar el estado de un usuario
 router.put('/:id/toggle-status', soloAdmin, usuariosController.toggleEstadoUsuario);
-
-// Ruta para eliminar un usuario
 router.delete('/:id', soloAdmin, usuariosController.eliminarUsuario);
+router.post('/reset-password', soloAdmin, usuariosController.resetearPassword);
 
 module.exports = router;
 

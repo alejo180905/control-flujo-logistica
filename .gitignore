@@ -5,6 +5,54 @@ node_modules/
 .vscode/
 .env
 
+# Archivos sensibles y de configuración
+Backend/.env
+frontend/.env
+*.env
+
+# Archivos de credenciales y secretos
+*.key
+*.pem
+*.crt
+*.p12
+*.jks
+
+# Archivos de base de datos y dumps
+*.sqlite
+*.db
+*.sql
+
+# Archivos de configuración local
+config/*.local.js
+config/*.local.json
+
+# Archivos de logs y temporales
+*.log
+*.tmp
+
+# Archivos de colección de pruebas y ejemplos con datos sensibles
+control-flujo-coleccion.json
+
+# Otros archivos que no deben subirse
+.DS_Store
+Thumbs.db
+
+# Build y dist
+/dist
+/build
+
+# Archivos de sistema
+.idea/
+
+# Archivos de backup
+*.bak
+*.old
+*.save
+
+# Restricción para cualquier archivo de credenciales
+secret*
+credential*
+
 # Archivos pesados / SDKs
 Oracle_JDK-24/
 

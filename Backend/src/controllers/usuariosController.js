@@ -10,7 +10,7 @@ exports.obtenerUsuarioPorId = async (req, res) => {
   const { id } = req.params;
   try {
     const [rows] = await db.query('SELECT id_usuario, nombre, usuario, rol, activo FROM USUARIOS WHERE id_usuario = ?', [id]);
-    
+
     if (rows.length === 0) {
       return res.status(404).json({
         mensaje: 'Usuario no encontrado'
@@ -33,7 +33,7 @@ exports.toggleEstadoUsuario = async (req, res) => {
   try {
     // Primero obtenemos el estado actual
     const [rows] = await db.query('SELECT activo FROM USUARIOS WHERE id_usuario = ?', [id]);
-    
+
     if (rows.length === 0) {
       return res.status(404).json({
         mensaje: 'Usuario no encontrado'
@@ -41,7 +41,7 @@ exports.toggleEstadoUsuario = async (req, res) => {
     }
 
     const nuevoEstado = rows[0].activo ? 0 : 1;
-    
+
     await db.query('UPDATE USUARIOS SET activo = ? WHERE id_usuario = ?', [nuevoEstado, id]);
 
     return res.json({
@@ -63,7 +63,7 @@ exports.eliminarUsuario = async (req, res) => {
   try {
     // Verificar que el usuario existe
     const [rows] = await db.query('SELECT id_usuario, rol FROM USUARIOS WHERE id_usuario = ?', [id]);
-    
+
     if (rows.length === 0) {
       return res.status(404).json({
         mensaje: 'Usuario no encontrado'
@@ -78,6 +78,16 @@ exports.eliminarUsuario = async (req, res) => {
           mensaje: 'No se puede eliminar al último administrador del sistema'
         });
       }
+    }
+
+    // Verificar si el usuario tiene historial de pedidos
+    const [historial] = await db.query('SELECT COUNT(*) as count FROM HISTORIAL_PEDIDOS WHERE id_usuario = ?', [id]);
+    
+    if (historial[0].count > 0) {
+      return res.status(400).json({
+        mensaje: 'No se puede eliminar este usuario porque tiene historial de pedidos asociado',
+        detalles: `El usuario tiene ${historial[0].count} registro(s) en el historial de pedidos. Para mantener la integridad de los datos, no se puede eliminar.`
+      });
     }
 
     // Eliminar el usuario
@@ -197,8 +207,10 @@ exports.login = async (req, res) => {
     const token = jwt.sign(
       {
         id: usuarioEncontrado.id_usuario, // Cambiado a id_usuario
+        id_usuario: usuarioEncontrado.id_usuario, // Para compatibilidad con historial
         usuario: usuarioEncontrado.usuario,
-        rol: usuarioEncontrado.rol
+        rol: usuarioEncontrado.rol,
+        nombre: usuarioEncontrado.nombre || usuarioEncontrado.usuario
       },
       process.env.JWT_SECRET || 'secreto_local',
       { expiresIn: '1h' }
@@ -211,6 +223,189 @@ exports.login = async (req, res) => {
     return res.status(500).json({
       mensaje: 'Error al iniciar sesión',
       error: error?.sqlMessage || error?.message || 'Revisa logs del servidor'
+    });
+  }
+};
+
+// Editar perfil del usuario (nombre y contraseña)
+exports.editarPerfil = async (req, res) => {
+  const { nombre, passwordActual, password, confirmarPassword } = req.body;
+  const usuario = req.usuario; // Viene del middleware de autenticación
+
+  console.log('🔍 EDITANDO PERFIL - Usuario del token:', usuario);
+  console.log('🔍 EDITANDO PERFIL - Datos recibidos:', { nombre, tienePasswordActual: !!passwordActual, tienePassword: !!password });
+
+  try {
+    // Validar que el usuario esté autenticado
+    if (!usuario || !usuario.id) {
+      return res.status(401).json({
+        mensaje: 'Usuario no autenticado'
+      });
+    }
+
+    // Validar nombre
+    if (!nombre || nombre.trim().length < 2) {
+      return res.status(400).json({
+        mensaje: 'El nombre debe tener al menos 2 caracteres'
+      });
+    }
+
+    // Validar contraseña si se proporciona
+    if (password) {
+      // Verificar que se proporcione la contraseña actual
+      if (!passwordActual) {
+        return res.status(400).json({
+          mensaje: 'Debes proporcionar tu contraseña actual para cambiarla'
+        });
+      }
+
+      if (password.length < 6) {
+        return res.status(400).json({
+          mensaje: 'La contraseña nueva debe tener al menos 6 caracteres'
+        });
+      }
+
+      if (password !== confirmarPassword) {
+        return res.status(400).json({
+          mensaje: 'Las contraseñas nuevas no coinciden'
+        });
+      }
+    }
+
+    // Verificar que el usuario existe y obtener su contraseña actual
+    const [usuarioExistente] = await db.query(
+      'SELECT * FROM USUARIOS WHERE id_usuario = ?',
+      [usuario.id]
+    );
+
+    console.log('🔍 VERIFICACIÓN - Usuario encontrado:', usuarioExistente);
+
+    if (usuarioExistente.length === 0) {
+      return res.status(404).json({
+        mensaje: 'Usuario no encontrado'
+      });
+    }
+
+    // Si se quiere cambiar la contraseña, verificar la contraseña actual
+    if (password) {
+      const contraseñaValida = await bcrypt.compare(passwordActual, usuarioExistente[0].contraseña);
+      if (!contraseñaValida) {
+        return res.status(400).json({
+          mensaje: 'La contraseña actual es incorrecta'
+        });
+      }
+    }
+
+    // Preparar la actualización
+    let updateQuery = 'UPDATE USUARIOS SET nombre = ?';
+    let updateParams = [nombre.trim()];
+
+    // Si se proporciona nueva contraseña, encriptarla
+    if (password) {
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      updateQuery += ', contraseña = ?';
+      updateParams.push(hashedPassword);
+    }
+
+    updateQuery += ' WHERE id_usuario = ?';
+    updateParams.push(usuario.id);
+
+    console.log('🔍 ACTUALIZACIÓN - Query:', updateQuery);
+    console.log('🔍 ACTUALIZACIÓN - Params:', updateParams);
+
+    // Ejecutar la actualización
+    await db.query(updateQuery, updateParams);
+
+    console.log('✅ Perfil actualizado para usuario:', usuario.usuario);
+
+    return res.json({
+      mensaje: 'Perfil actualizado correctamente',
+      datos: {
+        id_usuario: usuario.id,
+        nombre: nombre.trim(),
+        usuario: usuario.usuario,
+        rol: usuario.rol,
+        password_actualizada: !!password
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ ERROR AL ACTUALIZAR PERFIL:', util.inspect(error, { depth: null }));
+    return res.status(500).json({
+      mensaje: 'Error al actualizar el perfil',
+      error: error?.sqlMessage || error?.message || 'Error interno del servidor'
+    });
+  }
+};
+
+// Reset de contraseña por Admin
+exports.resetearPassword = async (req, res) => {
+  const { id_usuario, nueva_password } = req.body;
+  const adminUsuario = req.usuario; // Admin que está haciendo el reset
+
+  try {
+    // Validar que sea Admin
+    if (!adminUsuario || adminUsuario.rol !== 'Admin') {
+      return res.status(403).json({
+        mensaje: 'No tienes permisos para resetear contraseñas',
+        detalles: 'Se requiere rol de Admin'
+      });
+    }
+
+    // Validar parámetros
+    if (!id_usuario || !nueva_password) {
+      return res.status(400).json({
+        mensaje: 'ID de usuario y nueva contraseña son requeridos'
+      });
+    }
+
+    if (nueva_password.length < 6) {
+      return res.status(400).json({
+        mensaje: 'La nueva contraseña debe tener al menos 6 caracteres'
+      });
+    }
+
+    // Verificar que el usuario a resetear existe
+    const [usuarioTarget] = await db.query(
+      'SELECT id_usuario, usuario, nombre, rol FROM USUARIOS WHERE id_usuario = ?',
+      [id_usuario]
+    );
+
+    if (usuarioTarget.length === 0) {
+      return res.status(404).json({
+        mensaje: 'Usuario no encontrado'
+      });
+    }
+
+    // Encriptar la nueva contraseña
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(nueva_password, saltRounds);
+
+    // Actualizar la contraseña
+    await db.query(
+      'UPDATE USUARIOS SET contraseña = ? WHERE id_usuario = ?',
+      [hashedPassword, id_usuario]
+    );
+
+    console.log(`✅ Contraseña reseteada para usuario: ${usuarioTarget[0].usuario} por Admin: ${adminUsuario.usuario}`);
+
+    return res.json({
+      mensaje: 'Contraseña reseteada correctamente',
+      datos: {
+        usuario_actualizado: usuarioTarget[0].usuario,
+        nombre: usuarioTarget[0].nombre,
+        rol: usuarioTarget[0].rol,
+        nueva_password_temporal: nueva_password,
+        reseteado_por: adminUsuario.nombre
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ ERROR AL RESETEAR PASSWORD:', util.inspect(error, { depth: null }));
+    return res.status(500).json({
+      mensaje: 'Error al resetear la contraseña',
+      error: error?.sqlMessage || error?.message || 'Error interno del servidor'
     });
   }
 };
