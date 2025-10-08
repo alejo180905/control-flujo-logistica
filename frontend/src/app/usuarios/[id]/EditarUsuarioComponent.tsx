@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { fetchApi } from '@/lib/api'
 
 interface Usuario {
   id_usuario: number
@@ -31,18 +32,7 @@ export default function EditarUsuarioComponent({ id }: { id: string }) {
           return
         }
 
-        const response = await fetch(`http://localhost:3000/api/usuarios/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.mensaje || 'Error al cargar el usuario')
-        }
-
-        const data = await response.json()
+        const data = await fetchApi(`/usuarios/${id}`, { token })
         setUsuario(data)
       } catch (error: any) {
         console.error('Error loading user:', error)
@@ -65,21 +55,16 @@ export default function EditarUsuarioComponent({ id }: { id: string }) {
         return
       }
 
-      const response = await fetch(`http://localhost:3000/api/usuarios/${id}`, {
+      const data = await fetchApi(`/usuarios/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        token
       })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.mensaje || 'Error al eliminar el usuario')
+      if (data && !data.error) {
+        alert('Usuario eliminado correctamente')
+        router.push('/usuarios')
+      } else {
+        throw new Error(data.mensaje || 'Error al eliminar el usuario')
       }
-
-      // Mostrar mensaje de éxito y redirigir
-      alert('Usuario eliminado correctamente')
-      router.push('/usuarios')
     } catch (error) {
       console.error('Error al eliminar usuario:', error)
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido al eliminar el usuario'
@@ -95,18 +80,15 @@ export default function EditarUsuarioComponent({ id }: { id: string }) {
       const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1]
       if (!token) return
 
-      const response = await fetch(`http://localhost:3000/api/usuarios/${id}/toggle-status`, {
+      const data = await fetchApi(`/usuarios/${id}/toggle-status`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        token
       })
-
-      if (!response.ok) {
-        throw new Error('Error al cambiar el estado del usuario')
+      if (data && !data.error) {
+        setUsuario(prev => prev ? { ...prev, activo: !prev.activo } : null)
+      } else {
+        throw new Error(data.mensaje || 'Error al cambiar el estado del usuario')
       }
-
-      setUsuario(prev => prev ? { ...prev, activo: !prev.activo } : null)
     } catch (error) {
       console.error('Error:', error)
       setError('Error al cambiar el estado del usuario')

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Navigation from '@/components/Navigation'
+import { fetchApi } from '@/lib/api'
 
 interface Usuario {
   id: number
@@ -77,59 +78,31 @@ export default function PerfilPage() {
     }
 
     try {
-      const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1]
-      
-      const body: any = { nombre: nombre.trim() }
-      if (password) {
-        body.passwordActual = passwordActual
-        body.password = password
-        body.confirmarPassword = confirmarPassword
-      }
-
-      const response = await fetch('http://localhost:3000/api/usuarios/perfil', {
+      const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1];
+      if (!token) throw new Error('No se encontró el token');
+      const body = { nombre: nombre.trim(), passwordActual, password };
+      const response = await fetchApi('/usuarios/perfil', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        token,
         body: JSON.stringify(body)
-      })
-
-      const data = await response.json()
-
+      });
       if (response.ok) {
-        setSuccess('Perfil actualizado correctamente')
-        setPasswordActual('')
-        setPassword('')
-        setConfirmarPassword('')
-        
-        // Actualizar el usuario local
+        setSuccess('Perfil actualizado correctamente');
+        setPasswordActual('');
+        setPassword('');
+        setConfirmarPassword('');
         if (usuario) {
-          setUsuario({ ...usuario, nombre: nombre.trim() })
+          setUsuario({ ...usuario, nombre: nombre.trim() });
         }
       } else {
-        setError(data.mensaje || 'Error al actualizar el perfil')
+        setError(response.mensaje || 'Error al actualizar el perfil');
       }
     } catch (error) {
-      console.error('Error:', error)
-      setError('Error al conectar con el servidor')
+      console.error('Error:', error);
+      setError('Error al conectar con el servidor');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
-  if (!usuario) {
-    return (
-      <div>
-        <Navigation />
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-            <p className="mt-2 text-gray-600">Cargando perfil...</p>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -148,8 +121,8 @@ export default function PerfilPage() {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h3 className="text-sm font-medium text-blue-800 mb-2">Información de la cuenta</h3>
                 <div className="text-sm text-blue-700">
-                  <p><strong>Usuario:</strong> {usuario.usuario}</p>
-                  <p><strong>Rol:</strong> {usuario.rol}</p>
+                  <p><strong>Usuario:</strong> {usuario?.usuario ?? ''}</p>
+                  <p><strong>Rol:</strong> {usuario?.rol ?? ''}</p>
                 </div>
               </div>
 
@@ -284,5 +257,6 @@ export default function PerfilPage() {
         </div>
       </div>
     </div>
+
   )
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Navigation from '@/components/Navigation'
+import { fetchApi } from '@/lib/api'
 
 export default function NuevoPedidoPage() {
   const router = useRouter()
@@ -24,28 +25,18 @@ export default function NuevoPedidoPage() {
         return
       }
 
-      const response = await fetch('http://localhost:3000/api/pedidos', {
+      const data = await fetchApi('/pedidos', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          numero_pedido: numeroPedido
-        })
+        token,
+        body: JSON.stringify({ numero_pedido: numeroPedido })
       })
-
-      const data = await response.json()
-
-      if (response.ok) {
+      if (data && !data.error) {
         setSuccess('Pedido creado correctamente')
         setNumeroPedido('')
-        // Redirigir a la lista de pedidos después de 2 segundos
         setTimeout(() => {
           router.push('/pedidos')
         }, 2000)
       } else {
-        console.error('Error response:', data)
         setError(data.mensaje || data.error || 'Error al crear el pedido')
       }
     } catch (error) {

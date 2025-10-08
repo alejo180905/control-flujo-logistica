@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Navigation from '@/components/Navigation'
 import EstadoBadge from '@/components/EstadoBadge'
 import PedidoActions from '@/components/PedidoActions'
+import { fetchApi } from '@/lib/api'
 
 interface DashboardStats {
   totalPedidos: number;
@@ -85,73 +86,46 @@ export default function DashboardPage() {
   const fetchPedidosRelevantes = async () => {
     try {
       const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1]
-      if (!token) return
-
-      const response = await fetch('http://localhost:3000/api/pedidos', {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      if (!token) return;
+      const data = await fetchApi('/pedidos', { token });
+      // Filtrar pedidos según el rol del usuario
+      const pedidosFiltrados = (data.datos || []).filter((pedido: Pedido) => {
+        if (!usuario) return false;
+        switch (usuario.rol) {
+          case 'Bodega':
+            return pedido.estado === 'En_Bodega';
+          case 'Despachos':
+            return pedido.estado === 'Entregado_a_Despachos' || pedido.estado === 'Recibido_por_Despachos';
+          case 'Mensajero':
+            return pedido.estado === 'Entregado_por_Despachos' || 
+                   (pedido.estado === 'Recibido_por_Mensajero' && pedido.mensajero_que_recogio === usuario.usuario);
+          case 'Maquilas':
+            return pedido.estado === 'Entregado_a_Maquila';
+          case 'Admin':
+            return true; // Admin ve todos
+          default:
+            return false;
         }
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        // Filtrar pedidos según el rol del usuario
-        const pedidosFiltrados = data.filter((pedido: Pedido) => {
-          if (!usuario) return false
-          
-          switch (usuario.rol) {
-            case 'Bodega':
-              return pedido.estado === 'En_Bodega'
-            case 'Despachos':
-              return pedido.estado === 'Entregado_a_Despachos' || pedido.estado === 'Recibido_por_Despachos'
-            case 'Mensajero':
-              return pedido.estado === 'Entregado_por_Despachos' || 
-                     (pedido.estado === 'Recibido_por_Mensajero' && pedido.mensajero_que_recogio === usuario.usuario)
-            case 'Maquilas':
-              return pedido.estado === 'Entregado_a_Maquila'
-            case 'Admin':
-              return true // Admin ve todos
-            default:
-              return false
-          }
-        })
-        setPedidosRelevantes(pedidosFiltrados)
-      }
+      });
+      setPedidosRelevantes(pedidosFiltrados);
     } catch (error) {
-      console.error('Error al cargar pedidos:', error)
+      console.error('Error al cargar pedidos:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   const fetchStats = async () => {
     try {
-      const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1]
+      const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1];
       if (!token) {
-        console.error('No se encontró el token')
-        return
+        console.error('No se encontró el token');
+        return;
       }
-
-      console.log('Haciendo petición al dashboard con token')
-      const response = await fetch('http://localhost:3000/api/dashboard/stats', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      console.log('Status de la respuesta:', response.status)
-      if (!response.ok) {
-        const error = await response.text()
-        console.error('Error del servidor:', error)
-        return
-      }
-
-      if (response.ok) {
-        const data = await response.json()
-        setStats(data)
-      }
+      const data = await fetchApi('/dashboard/stats', { token });
+      setStats(data);
     } catch (error) {
-      console.error('Error al cargar estadísticas:', error)
+      console.error('Error al cargar estadísticas:', error);
     }
   }
 

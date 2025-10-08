@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Navigation from '@/components/Navigation'
+import { fetchApi } from '@/lib/api'
 
 interface Usuario {
   id_usuario: number
@@ -33,17 +34,7 @@ export default function UsuariosPage() {
   const fetchUsuarios = async () => {
     try {
       const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1]
-      const response = await fetch('http://localhost:3000/api/usuarios', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error('Error al cargar los usuarios')
-      }
-
-      const data = await response.json()
+      const data = await fetchApi('/usuarios', { token })
       setUsuarios(data || [])
     } catch (error) {
       console.error('Error:', error)

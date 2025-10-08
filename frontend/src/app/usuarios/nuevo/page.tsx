@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Navigation from '@/components/Navigation'
+import { fetchApi } from '@/lib/api'
 
 interface FormData {
   nombre: string
@@ -57,22 +58,17 @@ export default function NuevoUsuarioPage() {
         return
       }
 
-      const response = await fetch('http://localhost:3000/api/usuarios', {
+      const data = await fetchApi('/usuarios', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        token,
         body: JSON.stringify(formData)
       })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.mensaje || 'Error al crear el usuario')
+      if (data && !data.error) {
+        alert('Usuario creado correctamente')
+        router.push('/usuarios')
+      } else {
+        throw new Error(data.mensaje || 'Error al crear el usuario')
       }
-
-      alert('Usuario creado correctamente')
-      router.push('/usuarios')
     } catch (error) {
       console.error('Error:', error)
       setError(error instanceof Error ? error.message : 'Error al crear el usuario')

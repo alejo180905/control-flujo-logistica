@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { fetchApi } from '@/lib/api'
 
 interface PedidoActionsProps {
   pedido: {
@@ -22,21 +23,11 @@ export default function PedidoActions({ pedido, userRole, userName, onActionComp
 
   const makeRequest = async (endpoint: string, method: string = 'PUT', body?: any) => {
     const token = getToken()
-    const response = await fetch(`http://localhost:3000/api/pedidos${endpoint}`, {
+    return await fetchApi(`/pedidos${endpoint}`, {
       method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
+      token,
       body: body ? JSON.stringify(body) : undefined
     })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.mensaje || 'Error en la operación')
-    }
-
-    return await response.json()
   }
 
   const handleAction = async (action: string, endpoint: string) => {

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Navigation from '@/components/Navigation'
 import EstadoBadge from '@/components/EstadoBadge'
 import PedidoActions from '@/components/PedidoActions'
+import { fetchApi } from '@/lib/api'
 
 interface Pedido {
   id_pedido: number
@@ -59,17 +60,7 @@ export default function PedidosPage() {
   const fetchPedidos = async () => {
     try {
       const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1]
-      const response = await fetch('http://localhost:3000/api/pedidos', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error('Error al cargar los pedidos')
-      }
-
-      const data = await response.json()
+      const data = await fetchApi('/pedidos', { token })
       setPedidos(data.datos || [])
       setPedidosFiltrados(data.datos || []) // Inicializar filtrados con todos los pedidos
     } catch (error) {

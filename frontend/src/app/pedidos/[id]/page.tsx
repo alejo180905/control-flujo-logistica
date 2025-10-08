@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Navigation from '@/components/Navigation'
+import { fetchApi } from '@/lib/api'
 
 interface HistorialItem {
   id_historial: number
@@ -61,30 +62,15 @@ export default function PedidoDetallePage({ params }: { params: { id: string } }
       const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1]
       
       // Obtener historial y datos del pedido en paralelo
-      const [historialResponse, pedidosResponse] = await Promise.all([
-        fetch(`http://localhost:3000/api/pedidos/${params.id}/historial`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch(`http://localhost:3000/api/pedidos`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+      const [historialData, pedidosData] = await Promise.all([
+        fetchApi(`/pedidos/${params.id}/historial`, { token }),
+        fetchApi('/pedidos', { token })
       ])
-
-      if (!historialResponse.ok) {
-        throw new Error('Error al cargar el historial')
-      }
-
-      const historialData = await historialResponse.json()
       setHistorial(historialData.datos || [])
-
-      // Obtener datos específicos del pedido
-      if (pedidosResponse.ok) {
-        const pedidosData = await pedidosResponse.json()
-        const pedidoActual = pedidosData.datos?.find((p: Pedido) => p.id_pedido === parseInt(params.id))
-        if (pedidoActual) {
-          setPedido(pedidoActual)
-          setNewNumeroPedido(pedidoActual.numero_pedido)
-        }
+      const pedidoActual = pedidosData.datos?.find((p: Pedido) => p.id_pedido === parseInt(params.id))
+      if (pedidoActual) {
+        setPedido(pedidoActual)
+        setNewNumeroPedido(pedidoActual.numero_pedido)
       }
 
       setLoading(false)
@@ -103,20 +89,16 @@ export default function PedidoDetallePage({ params }: { params: { id: string } }
     setDeleting(true)
     try {
       const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1]
-      const response = await fetch(`http://localhost:3000/api/pedidos/${params.id}`, {
+      const data = await fetchApi(`/pedidos/${params.id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        token
       })
-
-      if (!response.ok) {
-        const data = await response.json()
+      if (data && !data.error) {
+        alert('Pedido eliminado correctamente')
+        router.push('/pedidos')
+      } else {
         throw new Error(data.mensaje || 'Error al eliminar el pedido')
       }
-
-      alert('Pedido eliminado correctamente')
-      router.push('/pedidos')
     } catch (error) {
       console.error('Error:', error)
       alert(error instanceof Error ? error.message : 'Error al eliminar el pedido')
@@ -139,26 +121,18 @@ export default function PedidoDetallePage({ params }: { params: { id: string } }
     setEditingPedido(true)
     try {
       const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1]
-      const response = await fetch(`http://localhost:3000/api/pedidos/${params.id}`, {
+      const data = await fetchApi(`/pedidos/${params.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          numero_pedido: newNumeroPedido.trim()
-        })
+        token,
+        body: JSON.stringify({ numero_pedido: newNumeroPedido.trim() })
       })
-
-      if (!response.ok) {
-        const data = await response.json()
+      if (data && !data.error) {
+        alert('Pedido editado correctamente')
+        setShowEditModal(false)
+        fetchHistorial()
+      } else {
         throw new Error(data.mensaje || 'Error al editar el pedido')
       }
-
-      alert('Pedido editado correctamente')
-      setShowEditModal(false)
-      // Recargar los datos
-      fetchHistorial()
     } catch (error) {
       console.error('Error:', error)
       alert(error instanceof Error ? error.message : 'Error al editar el pedido')

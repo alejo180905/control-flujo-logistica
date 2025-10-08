@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { fetchApi } from '@/lib/api'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -14,28 +15,18 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login', {
+      const data = await fetchApi('/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
           usuario: credentials.usuario,
           contraseña: credentials.password
         })
       })
-
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Login exitoso:', data)
-        // Guardar el token en una cookie
+      if (data.token) {
         document.cookie = `token=${data.token}; path=/`
-        // Redirigir a inicio
-        console.log('Intentando redirigir a inicio...')
         router.push('/inicio')
       } else {
-        const errorData = await response.json()
-        setError(errorData.mensaje || 'Credenciales inválidas')
+        setError(data.mensaje || 'Credenciales inválidas')
       }
     } catch (err) {
       console.error('Error en login:', err)
