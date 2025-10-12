@@ -4,7 +4,7 @@ const util = require('util');
 exports.getStats = async (req, res) => {
     try {
         console.log('📊 Obteniendo estadísticas del dashboard');
-        
+
         // Consulta para obtener el total de pedidos
         const [totalPedidos] = await db.query('SELECT COUNT(*) as total FROM PEDIDOS');
         console.log('🔍 Total de pedidos query result:', totalPedidos);

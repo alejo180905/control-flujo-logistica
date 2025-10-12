@@ -169,8 +169,8 @@ export default function EditarUsuarioComponent({ id }: { id: string }) {
             <button
               onClick={handleToggleStatus}
               className={`${
-                usuario.activo 
-                  ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' 
+                usuario.activo
+                  ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500'
                   : 'bg-orange-700 hover:bg-orange-800 focus:ring-orange-600'
               } w-full inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2`}
             >

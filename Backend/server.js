@@ -48,6 +48,12 @@ const usuariosRoutes = require('./src/routes/usuarios');
 const pedidosRoutes = require('./src/routes/pedidos');
 const dashboardRoutes = require('./src/routes/dashboardRoutes');
 
+
+// Ruta pública de prueba
+app.get('/api/ping', (req, res) => {
+	res.json({ message: 'pong' });
+});
+
 // Usar rutas con prefijo
 app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuariosRoutes);

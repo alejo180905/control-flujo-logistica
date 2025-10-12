@@ -11,7 +11,7 @@ Un sistema completo de gestión logística que permite el seguimiento de pedidos
 - **Gestión completa de usuarios** (crear, editar, eliminar, habilitar/deshabilitar)
 
 ### 📦 Gestión de Pedidos
-- **Workflow de 7 etapas**: 
+- **Workflow de 7 etapas**:
   1. En_Bodega
   2. Entregado_a_Despachos
   3. Recibido_por_Despachos
@@ -180,16 +180,16 @@ PORT=3000
 
 ## 🎯 Estado Actual
 
-✅ **Sistema de autenticación completo**  
-✅ **Workflow de pedidos funcional**  
-✅ **Dashboard personalizado por roles**  
-✅ **Gestión completa de usuarios**  
-✅ **Historial detallado y trazabilidad**  
-✅ **Filtros y búsquedas funcionales**  
-✅ **Interfaz de usuario intuitiva**  
-✅ **Base de datos optimizada**  
-✅ **Validaciones de seguridad**  
-✅ **Documentación completa**  
+✅ **Sistema de autenticación completo**
+✅ **Workflow de pedidos funcional**
+✅ **Dashboard personalizado por roles**
+✅ **Gestión completa de usuarios**
+✅ **Historial detallado y trazabilidad**
+✅ **Filtros y búsquedas funcionales**
+✅ **Interfaz de usuario intuitiva**
+✅ **Base de datos optimizada**
+✅ **Validaciones de seguridad**
+✅ **Documentación completa**
 
 ## 👨‍💻 Desarrollo
 
@@ -202,6 +202,6 @@ Desarrollado con enfoque en:
 
 ---
 
-**Versión**: 1.0.0  
-**Última actualización**: Septiembre 2025  
+**Versión**: 1.0.0
+**Última actualización**: Septiembre 2025
 **Estado**: Producción

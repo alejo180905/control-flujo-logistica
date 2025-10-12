@@ -167,7 +167,7 @@ cd Backend
 npm install
 npm run dev
 
-# Frontend  
+# Frontend
 cd frontend
 npm install
 npm run dev
@@ -181,7 +181,7 @@ npm run dev
     📁 routes/ ← Las rutas de la API
     📁 middleware/ ← Validaciones y autenticación
     📁 config/ ← Configuración de BD
-    
+
 📁 frontend/
   📁 src/
     📁 app/ ← Las páginas
@@ -202,6 +202,6 @@ El sistema está completo y funcional, pero siempre se puede mejorar:
 
 **💡 Tip**: Si algo no funciona como esperas, revisa que tengas los permisos correctos para tu rol. ¡La mayoría de "problemas" son por eso!
 
-**🚀 Estado**: ¡Listo para producción!  
-**📅 Última actualización**: Septiembre 2025  
+**🚀 Estado**: ¡Listo para producción!
+**📅 Última actualización**: Septiembre 2025
 **👥 Desarrollado por**: El increíble equipo de Control Flujo Logístico

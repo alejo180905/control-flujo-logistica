@@ -62,7 +62,7 @@ export default function ResetPasswordPage() {
 
       const data = await response.json()
       // Filtrar para excluir el usuario actual y mostrar solo usuarios activos
-      const usuariosFiltrados = data.filter((user: Usuario) => 
+      const usuariosFiltrados = data.filter((user: Usuario) =>
         user.activo && user.rol !== 'Admin'
       )
       setUsuarios(usuariosFiltrados)
@@ -103,14 +103,14 @@ export default function ResetPasswordPage() {
 
     try {
       const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1]
-      
+
       const payload = {
         id_usuario: parseInt(selectedUserId),
         nueva_password: nuevaPassword
       }
-      
+
       console.log('Enviando payload:', payload)
-      
+
       const response = await fetch('http://localhost:3000/api/usuarios/reset-password', {
         method: 'POST',
         headers: {
@@ -177,7 +177,7 @@ export default function ResetPasswordPage() {
                   </div>
                   <div className="ml-3">
                     <p className="text-sm text-yellow-700">
-                      <strong>Importante:</strong> Esta acción cambiará la contraseña del usuario seleccionado. 
+                      <strong>Importante:</strong> Esta acción cambiará la contraseña del usuario seleccionado.
                       Asegúrate de comunicarle la nueva contraseña temporal.
                     </p>
                   </div>
@@ -292,7 +292,7 @@ export default function ResetPasswordPage() {
                     </>
                   )}
                 </button>
-                
+
                 <button
                   type="button"
                   onClick={() => router.push('/usuarios')}

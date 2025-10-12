@@ -35,7 +35,7 @@ export default function NuevoUsuarioPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Validaciones básicas
     if (!formData.nombre.trim() || !formData.usuario.trim() || !formData.contraseña.trim() || !formData.rol) {
       setError('Todos los campos son obligatorios')
@@ -52,7 +52,7 @@ export default function NuevoUsuarioPage() {
 
     try {
       const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1]
-      
+
       if (!token) {
         router.push('/login')
         return

@@ -60,7 +60,7 @@ export default function PedidoDetallePage({ params }: { params: { id: string } }
   const fetchHistorial = async () => {
     try {
       const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1]
-      
+
       // Obtener historial y datos del pedido en paralelo
       const [historialData, pedidosData] = await Promise.all([
         fetchApi(`/pedidos/${params.id}/historial`, { token }),
@@ -221,7 +221,7 @@ export default function PedidoDetallePage({ params }: { params: { id: string } }
                 Historial del Pedido {pedido?.numero_pedido || ''}
               </h1>
               <p className="mt-1 text-sm text-gray-500">
-                Estado: <span className="font-medium">{pedido?.estado || 'Cargando...'}</span> | 
+                Estado: <span className="font-medium">{pedido?.estado || 'Cargando...'}</span> |
                 Seguimiento de todas las acciones realizadas
               </p>
             </div>
@@ -277,7 +277,7 @@ export default function PedidoDetallePage({ params }: { params: { id: string } }
                         {item.etapa}
                       </span>
                       <span className="text-sm font-medium text-gray-900">
-                        {item.accion === 'RECIBIDO' && item.etapa === 'BODEGA' 
+                        {item.accion === 'RECIBIDO' && item.etapa === 'BODEGA'
                           ? `Recibido en bodega (pedido creado por ${item.nombre_usuario} (${item.rol_usuario}))`
                           : `${formatearAccion(item.accion, item.etapa)} por ${item.nombre_usuario} (${item.rol_usuario})`
                         }
@@ -302,7 +302,7 @@ export default function PedidoDetallePage({ params }: { params: { id: string } }
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 Editar Número de Pedido
               </h3>
-              
+
               <div className="mb-4">
                 <label htmlFor="numero-pedido" className="block text-sm font-medium text-gray-700 mb-2">
                   Número Actual: <span className="font-bold">{pedido?.numero_pedido}</span>

@@ -1,4 +1,9 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+// Temporarily force the backend URL to Heroku while debugging env loading issues.
+// Revert this change after verifying the frontend -> backend flow works.
+const API_URL = 'https://cfl-alejo-2ec7d198caad.herokuapp.com/api';
+
+// Debug helper: show which API base URL the client is using (temporary)
+console.log('DEBUG API_URL =', API_URL);
 
 interface FetchOptions extends RequestInit {
   token?: string;
@@ -22,11 +27,23 @@ export async function fetchApi(endpoint: string, options: FetchOptions = {}) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Ha ocurrido un error');
+    // Try to parse JSON error, otherwise return text (helps debugging HTML errors)
+    try {
+      const error = await response.json();
+      throw new Error(error.message || JSON.stringify(error));
+    } catch (e) {
+      const text = await response.text();
+      throw new Error(text || 'Ha ocurrido un error');
+    }
   }
 
-  return response.json();
+  try {
+    return await response.json();
+  } catch (e) {
+    const text = await response.text();
+    // Return text inside an object to keep a predictable shape for callers
+    return { text } as any;
+  }
 }
 
 export const api = {

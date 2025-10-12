@@ -145,7 +145,7 @@ export default function PerfilPage() {
               {/* Cambiar contraseña */}
               <div className="border-t pt-4">
                 <h3 className="text-sm font-medium text-gray-700 mb-3">Cambiar Contraseña (Opcional)</h3>
-                
+
                 <div className="space-y-3">
                   <div>
                     <label htmlFor="passwordActual" className="block text-sm font-medium text-gray-700 mb-1">
@@ -243,7 +243,7 @@ export default function PerfilPage() {
                     </>
                   )}
                 </button>
-                
+
                 <button
                   type="button"
                   onClick={() => router.push('/dashboard')}

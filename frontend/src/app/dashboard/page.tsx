@@ -97,7 +97,7 @@ export default function DashboardPage() {
           case 'Despachos':
             return pedido.estado === 'Entregado_a_Despachos' || pedido.estado === 'Recibido_por_Despachos';
           case 'Mensajero':
-            return pedido.estado === 'Entregado_por_Despachos' || 
+            return pedido.estado === 'Entregado_por_Despachos' ||
                    (pedido.estado === 'Recibido_por_Mensajero' && pedido.mensajero_que_recogio === usuario.usuario);
           case 'Maquilas':
             return pedido.estado === 'Entregado_a_Maquila';

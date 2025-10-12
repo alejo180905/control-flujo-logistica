@@ -53,8 +53,8 @@ CREATE TABLE USUARIOS (
 CREATE TABLE PEDIDOS (
     id_pedido INT PRIMARY KEY AUTO_INCREMENT,
     numero_pedido VARCHAR(100) UNIQUE NOT NULL,
-    estado ENUM('En_Bodega', 'Entregado_a_Despachos', 'Recibido_por_Despachos', 
-                'Entregado_por_Despachos', 'Recibido_por_Mensajero', 
+    estado ENUM('En_Bodega', 'Entregado_a_Despachos', 'Recibido_por_Despachos',
+                'Entregado_por_Despachos', 'Recibido_por_Mensajero',
                 'Entregado_a_Maquila', 'Recibido_por_Maquila') DEFAULT 'En_Bodega',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -299,8 +299,8 @@ console.error('❌ ERROR:', util.inspect(error, { depth: null }));
 
 ### Transiciones Válidas
 ```
-En_Bodega → Entregado_a_Despachos → Recibido_por_Despachos → 
-Entregado_por_Despachos → Recibido_por_Mensajero → 
+En_Bodega → Entregado_a_Despachos → Recibido_por_Despachos →
+Entregado_por_Despachos → Recibido_por_Mensajero →
 Entregado_a_Maquila → Recibido_por_Maquila
 ```
 
@@ -367,6 +367,6 @@ npm run env-check
 
 ---
 
-**Estado**: Producción ✅  
-**Mantenedor**: Equipo de Control Flujo Logístico  
+**Estado**: Producción ✅
+**Mantenedor**: Equipo de Control Flujo Logístico
 **Última actualización**: Septiembre 2025

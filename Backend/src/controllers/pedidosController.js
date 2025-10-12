@@ -68,7 +68,7 @@ exports.crearPedido = async (req, res) => {
     } catch (error) {
         // Revertir transacción en caso de error
         await db.query('ROLLBACK');
-        
+
         console.error('❌ ERROR AL CREAR PEDIDO:', util.inspect(error, { depth: null }));
         return res.status(500).json({
             mensaje: 'Error al crear el pedido',
@@ -84,7 +84,7 @@ exports.listarPedidos = async (req, res) => {
 
     try {
         let query = `
-            SELECT 
+            SELECT
                 p.*,
                 (SELECT COUNT(*) FROM HISTORIAL_PEDIDOS WHERE id_pedido = p.id_pedido) as total_movimientos
             FROM PEDIDOS p
@@ -123,7 +123,7 @@ exports.verHistorialPedido = async (req, res) => {
 
     try {
         const [historial] = await db.query(`
-            SELECT 
+            SELECT
                 h.*,
                 u.nombre as nombre_usuario,
                 u.rol as rol_usuario
@@ -455,7 +455,7 @@ exports.confirmarRecibidoMaquilas = async (req, res) => {
 
         // Marcar pedido como FINALIZADO y actualizar completed_at
         await db.query(
-            'UPDATE PEDIDOS SET estado = ?, completed_at = NOW() WHERE id_pedido = ?', 
+            'UPDATE PEDIDOS SET estado = ?, completed_at = NOW() WHERE id_pedido = ?',
             ['FINALIZADO', id]
         );
 

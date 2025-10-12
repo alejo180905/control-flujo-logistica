@@ -343,11 +343,11 @@ const apiCall = async (endpoint: string, options?: RequestInit) => {
       ...options?.headers
     }
   })
-  
+
   if (!response.ok) {
     throw new Error(await response.text())
   }
-  
+
   return response.json()
 }
 ```
@@ -416,11 +416,11 @@ if (!token || isTokenExpired(token)) {
 // Validaciones client-side
 const validateForm = (data: FormData) => {
   const errors: string[] = []
-  
+
   if (!data.nombre.trim()) errors.push('Nombre requerido')
   if (!data.usuario.trim()) errors.push('Usuario requerido')
   if (data.password.length < 6) errors.push('Contraseña muy corta')
-  
+
   return errors
 }
 ```
@@ -440,11 +440,11 @@ const getNavItems = (role: string) => {
     { href: '/inicio', label: 'Inicio' },
     { href: '/pedidos', label: 'Pedidos' }
   ]
-  
+
   if (role === 'Admin') {
     items.push({ href: '/usuarios', label: 'Usuarios' })
   }
-  
+
   return items
 }
 ```
@@ -568,7 +568,7 @@ npm run analyze
 
 ---
 
-**Estado**: Producción ✅  
-**Framework**: Next.js 14 + TypeScript  
-**Última actualización**: Septiembre 2025  
+**Estado**: Producción ✅
+**Framework**: Next.js 14 + TypeScript
+**Última actualización**: Septiembre 2025
 **Mantenedor**: Equipo de Control Flujo Logístico

@@ -32,7 +32,7 @@ export default function PedidosPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [usuario, setUsuario] = useState<Usuario | null>(null)
-  
+
   // Estados para filtros
   const [filtroNumero, setFiltroNumero] = useState('')
   const [filtroEstado, setFiltroEstado] = useState('')
@@ -77,7 +77,7 @@ export default function PedidosPage() {
 
     // Filtro por número de pedido
     if (filtroNumero.trim()) {
-      resultado = resultado.filter(pedido => 
+      resultado = resultado.filter(pedido =>
         pedido.numero_pedido.toLowerCase().includes(filtroNumero.toLowerCase())
       )
     }
@@ -92,8 +92,8 @@ export default function PedidosPage() {
       resultado = resultado.filter(pedido => {
         // Convertir la fecha del pedido a formato YYYY-MM-DD para comparar
         const fechaPedido = new Date(pedido.fecha_creacion)
-        const fechaPedidoStr = fechaPedido.getFullYear() + '-' + 
-                               String(fechaPedido.getMonth() + 1).padStart(2, '0') + '-' + 
+        const fechaPedidoStr = fechaPedido.getFullYear() + '-' +
+                               String(fechaPedido.getMonth() + 1).padStart(2, '0') + '-' +
                                String(fechaPedido.getDate()).padStart(2, '0')
         return fechaPedidoStr === filtroFecha
       })

@@ -61,8 +61,8 @@ export default function UsuariosPage() {
       }
 
       // Actualizar el estado del usuario en la lista
-      setUsuarios(usuarios.map(user => 
-        user.id_usuario === id 
+      setUsuarios(usuarios.map(user =>
+        user.id_usuario === id
           ? { ...user, activo: !user.activo }
           : user
       ))

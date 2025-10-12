@@ -82,7 +82,7 @@ exports.eliminarUsuario = async (req, res) => {
 
     // Verificar si el usuario tiene historial de pedidos
     const [historial] = await db.query('SELECT COUNT(*) as count FROM HISTORIAL_PEDIDOS WHERE id_usuario = ?', [id]);
-    
+
     if (historial[0].count > 0) {
       return res.status(400).json({
         mensaje: 'No se puede eliminar este usuario porque tiene historial de pedidos asociado',
@@ -130,14 +130,22 @@ exports.registrarUsuario = async (req, res) => {
   console.log('➡️ LLEGA AL CONTROLADOR DE REGISTRO:', util.inspect(body, { depth: null }));
 
   try {
-    // 🚫 BLOQUEAR CREACIÓN DE ADMIN
-    if (rol === "Admin" || rol === "admin" || rol === "ADMIN") {
-      console.warn('🚨 Intento de crear usuario Admin bloqueado:', { usuario, rol });
+    // 🚫 BLOQUEAR CREACIÓN DE ADMIN por parte del público
+    // Si la petición viene de un usuario autenticado con rol 'Admin' (req.usuario), permitimos crear Admin.
+    // Para poder crear temporalmente un Admin desde un entorno no autenticado, puedes activar
+    // la variable de entorno ALLOW_PUBLIC_ADMIN_CREATION=true en el entorno de Heroku.
+    const allowPublicAdmin = process.env.ALLOW_PUBLIC_ADMIN_CREATION === 'true';
+    if ((rol === "Admin" || rol === "admin" || rol === "ADMIN") && !(req.usuario && req.usuario.rol === 'Admin') && !allowPublicAdmin) {
+      console.warn('🚨 Intento de crear usuario Admin bloqueado (no autenticado/Admin):', { usuario, rol });
       return res.status(403).json({
         mensaje: "No tienes permisos para crear un usuario Admin",
-        detalle: "Solo los administradores del sistema pueden crear usuarios Admin"
+        detalle: "Solo los administradores del sistema autenticados pueden crear usuarios Admin"
       });
-   }
+    }
+
+    if (allowPublicAdmin && (rol === "Admin" || rol === "admin" || rol === "ADMIN")) {
+      console.warn('⚠️ Creación pública de Admin permitida temporalmente por ALLOW_PUBLIC_ADMIN_CREATION=true');
+    }
 
     // Validaciones mínimas
     if (!nombre || !usuario || !rawPassword) {
@@ -160,7 +168,7 @@ exports.registrarUsuario = async (req, res) => {
 
     // Preparar INSERT - USANDO NOMBRES CORRECTOS DE COLUMNAS
     // Nota: La columna de contraseña parece llamarse "contraseña" en tu BD
-    const insertSql = 'INSERT INTO USUARIOS (nombre, rol, usuario, contraseña) VALUES (?, ?, ?, ?)';
+  const insertSql = 'INSERT INTO USUARIOS (nombre, rol, usuario, contrasena) VALUES (?, ?, ?, ?)';
     const params = [nombre, rol, usuario, hashedPassword];
     console.log('📌 Ejecutando INSERT:', insertSql, params);
 
@@ -195,8 +203,8 @@ exports.login = async (req, res) => {
     }
 
     const usuarioEncontrado = rows[0];
-    // La columna de contraseña parece llamarse "contraseña" en tu BD
-    const hashed = usuarioEncontrado.contraseña;
+    // Soporte para ambas posibles columnas: 'contraseña' (original) o 'contrasena' (sin acento)
+    const hashed = usuarioEncontrado['contraseña'] ?? usuarioEncontrado.contrasena ?? usuarioEncontrado.password;
 
     const passwordValida = await bcrypt.compare(rawPassword, hashed);
     if (!passwordValida) {
@@ -212,7 +220,7 @@ exports.login = async (req, res) => {
         rol: usuarioEncontrado.rol,
         nombre: usuarioEncontrado.nombre || usuarioEncontrado.usuario
       },
-      process.env.JWT_SECRET || 'secreto_local',
+      process.env.JWT_SECRET || 'secreto',
       { expiresIn: '1h' }
     );
 
@@ -288,7 +296,7 @@ exports.editarPerfil = async (req, res) => {
 
     // Si se quiere cambiar la contraseña, verificar la contraseña actual
     if (password) {
-      const contraseñaValida = await bcrypt.compare(passwordActual, usuarioExistente[0].contraseña);
+    const contraseñaValida = await bcrypt.compare(passwordActual, usuarioExistente[0]['contraseña'] ?? usuarioExistente[0].contrasena ?? usuarioExistente[0].password);
       if (!contraseñaValida) {
         return res.status(400).json({
           mensaje: 'La contraseña actual es incorrecta'
@@ -304,7 +312,7 @@ exports.editarPerfil = async (req, res) => {
     if (password) {
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
-      updateQuery += ', contraseña = ?';
+  updateQuery += ', contrasena = ?';
       updateParams.push(hashedPassword);
     }
 
@@ -384,7 +392,7 @@ exports.resetearPassword = async (req, res) => {
 
     // Actualizar la contraseña
     await db.query(
-      'UPDATE USUARIOS SET contraseña = ? WHERE id_usuario = ?',
+      'UPDATE USUARIOS SET contrasena = ? WHERE id_usuario = ?',
       [hashedPassword, id_usuario]
     );
 
